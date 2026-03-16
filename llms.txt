@@ -1,0 +1,89 @@
+# @verevoir/stripe
+
+> Stripe payment adapter — checkout sessions, subscription management, webhook handling, and billing portal. Wraps the Stripe SDK with a focused interface for subscription billing.
+
+## Install
+
+```bash
+npm install @verevoir/stripe stripe
+```
+
+## Core Exports
+
+### Stripe Adapter
+
+```typescript
+import Stripe from 'stripe';
+import { createStripeAdapter } from '@verevoir/stripe';
+
+const stripe = new Stripe('sk_test_...');
+const adapter = createStripeAdapter({
+  client: stripe,
+  webhookSecret: 'whsec_...',
+});
+
+// Create checkout session for subscription
+const session = await adapter.createCheckoutSession({
+  priceId: 'price_pro_monthly',
+  customerEmail: 'alice@example.com',
+  successUrl: 'https://app.com/success',
+  cancelUrl: 'https://app.com/cancel',
+  metadata: { accountId: 'acc_123' },
+});
+// Redirect to session.url
+
+// Create billing portal session
+const portal = await adapter.createPortalSession({
+  customerId: 'cus_123',
+  returnUrl: 'https://app.com/settings',
+});
+
+// Create customer
+const customerId = await adapter.createCustomer('alice@example.com', { accountId: 'acc_1' });
+
+// Cancel subscription
+await adapter.cancelSubscription('sub_123');
+```
+
+### Webhook Handling
+
+```typescript
+// In your webhook endpoint
+const event = adapter.parseWebhookEvent(requestBody, stripeSignature);
+
+switch (event.type) {
+  case 'checkout.session.completed':
+    // event.customerId, event.subscriptionId, event.metadata
+    break;
+  case 'customer.subscription.updated':
+    // event.subscriptionId, event.status, event.currentPeriodStart, event.currentPeriodEnd, event.priceId
+    break;
+  case 'customer.subscription.deleted':
+    // event.subscriptionId
+    break;
+  case 'invoice.payment_failed':
+    // event.subscriptionId, event.customerId
+    break;
+  case 'unknown':
+    // event.rawType — unhandled Stripe event
+    break;
+}
+```
+
+## Types
+
+```typescript
+interface StripeAdapter {
+  createCheckoutSession(options: CheckoutOptions): Promise<CheckoutSession>;
+  createPortalSession(options: PortalOptions): Promise<PortalSession>;
+  createCustomer(email: string, metadata?: Record<string, string>): Promise<string>;
+  cancelSubscription(subscriptionId: string): Promise<void>;
+  parseWebhookEvent(payload: string | Buffer, signature: string): WebhookEvent;
+}
+```
+
+## Constraints
+
+- Peer dependency: `stripe` (^17.0.0 || ^18.0.0)
+- Consumer provides configured Stripe SDK instance
+- Stripe is source of truth for subscription state
