@@ -45,17 +45,37 @@ export interface PortalSession {
 
 /** Parsed webhook event — the subset of Stripe events we handle. */
 export type WebhookEvent =
-  | { type: 'checkout.session.completed'; customerId: string; subscriptionId: string; metadata: Record<string, string> }
-  | { type: 'customer.subscription.updated'; subscriptionId: string; status: string; currentPeriodStart: number; currentPeriodEnd: number; priceId: string; cancelAtPeriodEnd: boolean }
+  | {
+      type: 'checkout.session.completed';
+      customerId: string;
+      subscriptionId: string;
+      metadata: Record<string, string>;
+    }
+  | {
+      type: 'customer.subscription.updated';
+      subscriptionId: string;
+      status: string;
+      currentPeriodStart: number;
+      currentPeriodEnd: number;
+      priceId: string;
+      cancelAtPeriodEnd: boolean;
+    }
   | { type: 'customer.subscription.deleted'; subscriptionId: string }
-  | { type: 'invoice.payment_failed'; subscriptionId: string; customerId: string }
+  | {
+      type: 'invoice.payment_failed';
+      subscriptionId: string;
+      customerId: string;
+    }
   | { type: 'unknown'; rawType: string };
 
 /** The adapter interface — everything a consumer needs from Stripe. */
 export interface StripeAdapter {
   createCheckoutSession(options: CheckoutOptions): Promise<CheckoutSession>;
   createPortalSession(options: PortalOptions): Promise<PortalSession>;
-  createCustomer(email: string, metadata?: Record<string, string>): Promise<string>;
+  createCustomer(
+    email: string,
+    metadata?: Record<string, string>,
+  ): Promise<string>;
   cancelSubscription(subscriptionId: string): Promise<void>;
   parseWebhookEvent(payload: string | Buffer, signature: string): WebhookEvent;
 }

@@ -44,23 +44,23 @@ if (event.type === 'customer.subscription.updated') {
 
 ### Adapter
 
-| Method | Description |
-|--------|-------------|
-| `createCheckoutSession(options)` | Create a Stripe Checkout session for subscription |
-| `createPortalSession(options)` | Create a Stripe Billing Portal session |
-| `createCustomer(email, metadata?)` | Create a Stripe customer |
-| `cancelSubscription(subscriptionId)` | Cancel a subscription |
-| `parseWebhookEvent(payload, signature)` | Parse and verify a webhook event |
+| Method                                  | Description                                       |
+| --------------------------------------- | ------------------------------------------------- |
+| `createCheckoutSession(options)`        | Create a Stripe Checkout session for subscription |
+| `createPortalSession(options)`          | Create a Stripe Billing Portal session            |
+| `createCustomer(email, metadata?)`      | Create a Stripe customer                          |
+| `cancelSubscription(subscriptionId)`    | Cancel a subscription                             |
+| `parseWebhookEvent(payload, signature)` | Parse and verify a webhook event                  |
 
 ### Webhook Events
 
-| Event Type | Fields |
-|-----------|--------|
-| `checkout.session.completed` | `customerId`, `subscriptionId`, `metadata` |
+| Event Type                      | Fields                                                                                               |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `checkout.session.completed`    | `customerId`, `subscriptionId`, `metadata`                                                           |
 | `customer.subscription.updated` | `subscriptionId`, `status`, `currentPeriodStart`, `currentPeriodEnd`, `priceId`, `cancelAtPeriodEnd` |
-| `customer.subscription.deleted` | `subscriptionId` |
-| `invoice.payment_failed` | `subscriptionId`, `customerId` |
-| `unknown` | `rawType` |
+| `customer.subscription.deleted` | `subscriptionId`                                                                                     |
+| `invoice.payment_failed`        | `subscriptionId`, `customerId`                                                                       |
+| `unknown`                       | `rawType`                                                                                            |
 
 ## Design
 

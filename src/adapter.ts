@@ -127,13 +127,14 @@ export function createStripeAdapter(
           return {
             type: 'invoice.payment_failed',
             subscriptionId: subDetails?.subscription
-              ? (typeof subDetails.subscription === 'string'
-                  ? subDetails.subscription
-                  : subDetails.subscription.id)
+              ? typeof subDetails.subscription === 'string'
+                ? subDetails.subscription
+                : subDetails.subscription.id
               : '',
-            customerId: typeof invoice.customer === 'string'
-              ? invoice.customer
-              : invoice.customer?.id ?? '',
+            customerId:
+              typeof invoice.customer === 'string'
+                ? invoice.customer
+                : (invoice.customer?.id ?? ''),
           };
         }
 

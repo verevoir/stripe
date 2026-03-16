@@ -187,11 +187,13 @@ describe('createStripeAdapter', () => {
             status: 'active',
             cancel_at_period_end: false,
             items: {
-              data: [{
-                current_period_start: 1700000000,
-                current_period_end: 1702592000,
-                price: { id: 'price_pro' },
-              }],
+              data: [
+                {
+                  current_period_start: 1700000000,
+                  current_period_end: 1702592000,
+                  price: { id: 'price_pro' },
+                },
+              ],
             },
           },
         },
