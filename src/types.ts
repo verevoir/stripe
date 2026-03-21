@@ -24,6 +24,8 @@ export interface CheckoutOptions {
   readonly cancelUrl: string;
   /** Optional metadata to attach to the Stripe session. */
   readonly metadata?: Record<string, string>;
+  /** Require billing address during checkout. */
+  readonly collectBillingAddress?: boolean;
 }
 
 /** Result of creating a checkout session. */
@@ -68,6 +70,16 @@ export type WebhookEvent =
     }
   | { type: 'unknown'; rawType: string };
 
+/** A paid invoice summary. */
+export interface Invoice {
+  readonly id: string;
+  readonly date: number;
+  readonly amount: number;
+  readonly currency: string;
+  readonly status: string;
+  readonly pdfUrl: string | null;
+}
+
 /** The adapter interface — everything a consumer needs from Stripe. */
 export interface StripeAdapter {
   createCheckoutSession(options: CheckoutOptions): Promise<CheckoutSession>;
@@ -77,5 +89,6 @@ export interface StripeAdapter {
     metadata?: Record<string, string>,
   ): Promise<string>;
   cancelSubscription(subscriptionId: string): Promise<void>;
+  listInvoices(customerId: string): Promise<Invoice[]>;
   parseWebhookEvent(payload: string | Buffer, signature: string): WebhookEvent;
 }

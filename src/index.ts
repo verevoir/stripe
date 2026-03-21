@@ -6,6 +6,7 @@ export type {
   CheckoutSession,
   PortalOptions,
   PortalSession,
+  Invoice,
   WebhookEvent,
   StripeAdapter,
 } from './types.js';

@@ -5,6 +5,7 @@ import type {
   CheckoutSession,
   PortalOptions,
   PortalSession,
+  Invoice,
   WebhookEvent,
 } from './types.js';
 
@@ -48,6 +49,10 @@ export function createStripeAdapter(
         params.metadata = opts.metadata;
       }
 
+      if (opts.collectBillingAddress) {
+        params.billing_address_collection = 'required';
+      }
+
       const session = await client.checkout.sessions.create(params);
       return {
         sessionId: session.id,
@@ -76,6 +81,23 @@ export function createStripeAdapter(
 
     async cancelSubscription(subscriptionId: string): Promise<void> {
       await client.subscriptions.cancel(subscriptionId);
+    },
+
+    async listInvoices(customerId: string): Promise<Invoice[]> {
+      const invoices = await client.invoices.list({
+        customer: customerId,
+        limit: 100,
+      });
+      return invoices.data
+        .filter((inv): inv is typeof inv & { id: string } => !!inv.id)
+        .map((inv) => ({
+          id: inv.id,
+          date: inv.created,
+          amount: inv.amount_paid,
+          currency: inv.currency,
+          status: inv.status ?? 'unknown',
+          pdfUrl: inv.invoice_pdf ?? null,
+        }));
     },
 
     parseWebhookEvent(
