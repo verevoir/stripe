@@ -1,6 +1,6 @@
 {
   "name": "@verevoir/stripe",
-  "version": "0.1.0-alpha.4",
+  "version": "1.0.0",
   "description": "Stripe payment adapter — checkout, subscriptions, webhooks, and billing portal",
   "homepage": "https://verevoir.io",
   "license": "MIT",
