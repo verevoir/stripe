@@ -32,28 +32,16 @@ export function createStripeAdapter(
     async createCheckoutSession(
       opts: CheckoutOptions,
     ): Promise<CheckoutSession> {
-      const params: Stripe.Checkout.SessionCreateParams = {
+      const session = await client.checkout.sessions.create({
         mode: 'subscription',
         line_items: [{ price: opts.priceId, quantity: 1 }],
         success_url: opts.successUrl,
         cancel_url: opts.cancelUrl,
-      };
-
-      if (opts.customerId) {
-        params.customer = opts.customerId;
-      } else if (opts.customerEmail) {
-        params.customer_email = opts.customerEmail;
-      }
-
-      if (opts.metadata) {
-        params.metadata = opts.metadata;
-      }
-
-      if (opts.collectBillingAddress) {
-        params.billing_address_collection = 'required';
-      }
-
-      const session = await client.checkout.sessions.create(params);
+        ...(opts.customerId && { customer: opts.customerId }),
+        ...(opts.customerEmail && !opts.customerId && { customer_email: opts.customerEmail }),
+        ...(opts.metadata && { metadata: opts.metadata }),
+        ...(opts.collectBillingAddress && { billing_address_collection: 'required' as const }),
+      });
       return {
         sessionId: session.id,
         url: session.url!,
