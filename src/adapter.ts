@@ -38,9 +38,12 @@ export function createStripeAdapter(
         success_url: opts.successUrl,
         cancel_url: opts.cancelUrl,
         ...(opts.customerId && { customer: opts.customerId }),
-        ...(opts.customerEmail && !opts.customerId && { customer_email: opts.customerEmail }),
+        ...(opts.customerEmail &&
+          !opts.customerId && { customer_email: opts.customerEmail }),
         ...(opts.metadata && { metadata: opts.metadata }),
-        ...(opts.collectBillingAddress && { billing_address_collection: 'required' as const }),
+        ...(opts.collectBillingAddress && {
+          billing_address_collection: 'required' as const,
+        }),
       });
       return {
         sessionId: session.id,

@@ -1,6 +1,6 @@
 {
   "name": "@verevoir/stripe",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Stripe payment adapter — checkout, subscriptions, webhooks, and billing portal",
   "homepage": "https://verevoir.io",
   "license": "MIT",
@@ -35,15 +35,15 @@
     "stripe": "^22.0.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.4",
-    "@types/node": "^22.0.0",
-    "eslint": "^9.39.4",
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^25.6.0",
+    "eslint": "^10.2.0",
     "eslint-config-prettier": "^10.1.8",
-    "prettier": "^3.8.1",
-    "stripe": "^22.0.0",
+    "prettier": "^3.8.2",
+    "stripe": "^22.0.1",
     "tsup": "^8.5.1",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.56.1",
-    "vitest": "^3.2.4"
+    "typescript": "^6.0.2",
+    "typescript-eslint": "^8.58.1",
+    "vitest": "^4.1.4"
   }
 }

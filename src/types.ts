@@ -81,20 +81,31 @@ export interface Invoice {
 }
 
 /** Extract a specific event type from the WebhookEvent union. */
-type EventOfType<T extends WebhookEvent['type']> = Extract<WebhookEvent, { type: T }>;
+type EventOfType<T extends WebhookEvent['type']> = Extract<
+  WebhookEvent,
+  { type: T }
+>;
 
 /** Configuration for the webhook route handler. */
 export interface WebhookHandlerOptions {
   /** The Stripe adapter (or a function that returns one, for lazy init). */
   adapter: StripeAdapter | (() => Promise<StripeAdapter>);
   /** Called when a checkout session completes. */
-  onCheckoutCompleted?: (event: EventOfType<'checkout.session.completed'>) => Promise<void>;
+  onCheckoutCompleted?: (
+    event: EventOfType<'checkout.session.completed'>,
+  ) => Promise<void>;
   /** Called when a subscription is updated. */
-  onSubscriptionUpdated?: (event: EventOfType<'customer.subscription.updated'>) => Promise<void>;
+  onSubscriptionUpdated?: (
+    event: EventOfType<'customer.subscription.updated'>,
+  ) => Promise<void>;
   /** Called when a subscription is deleted. */
-  onSubscriptionDeleted?: (event: EventOfType<'customer.subscription.deleted'>) => Promise<void>;
+  onSubscriptionDeleted?: (
+    event: EventOfType<'customer.subscription.deleted'>,
+  ) => Promise<void>;
   /** Called when an invoice payment fails. */
-  onPaymentFailed?: (event: EventOfType<'invoice.payment_failed'>) => Promise<void>;
+  onPaymentFailed?: (
+    event: EventOfType<'invoice.payment_failed'>,
+  ) => Promise<void>;
 }
 
 /** The adapter interface — everything a consumer needs from Stripe. */
