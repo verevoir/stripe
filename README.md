@@ -68,18 +68,17 @@ if (event.type === 'customer.subscription.updated') {
 - Stripe is source of truth for subscription state
 - Focused on subscription billing (not one-off payments)
 
-## Documentation
+## Where it sits
 
-- [Verevoir Packages](https://verevoir.io/packages)
-- [Commerce Guide](https://verevoir.io/docs/commerce)
+- **[@verevoir/commerce](https://www.npmjs.com/package/@verevoir/commerce)** — abstract e-commerce model (products, baskets, orders, subscriptions). This adapter implements the payment side for Stripe.
+- **[@verevoir/accounts](https://www.npmjs.com/package/@verevoir/accounts)** — the tenancy boundary. Put `accountId` in your Stripe metadata so webhooks resolve back to the right tenant.
 
-## Development
+Used in production by [Slinqi](https://slinqi.io) for PRO-tier subscriptions.
 
-```bash
-make build   # Compile TypeScript
-make test    # Run test suite
-make lint    # Lint and check formatting
-```
+## Docs
+
+- [Verevoir packages](https://verevoir.io/packages)
+- [Commerce guide](https://verevoir.io/docs/commerce)
 
 ## License
 
