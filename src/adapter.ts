@@ -7,6 +7,7 @@ import type {
   PortalSession,
   Invoice,
   WebhookEvent,
+  SubscriptionSnapshot,
 } from './types.js';
 
 export interface CreateStripeAdapterOptions {
@@ -101,10 +102,13 @@ export function createStripeAdapter(
         webhookSecret,
       );
 
+      const base = { id: event.id, createdAt: event.created };
+
       switch (event.type) {
         case 'checkout.session.completed': {
           const session = event.data.object as Stripe.Checkout.Session;
           return {
+            ...base,
             type: 'checkout.session.completed',
             customerId: session.customer as string,
             subscriptionId: session.subscription as string,
@@ -116,6 +120,7 @@ export function createStripeAdapter(
           const sub = event.data.object as Stripe.Subscription;
           const item = sub.items.data[0];
           return {
+            ...base,
             type: 'customer.subscription.updated',
             subscriptionId: sub.id,
             status: sub.status,
@@ -129,6 +134,7 @@ export function createStripeAdapter(
         case 'customer.subscription.deleted': {
           const sub = event.data.object as Stripe.Subscription;
           return {
+            ...base,
             type: 'customer.subscription.deleted',
             subscriptionId: sub.id,
           };
@@ -138,6 +144,7 @@ export function createStripeAdapter(
           const invoice = event.data.object as Stripe.Invoice;
           const subDetails = invoice.parent?.subscription_details;
           return {
+            ...base,
             type: 'invoice.payment_failed',
             subscriptionId: subDetails?.subscription
               ? typeof subDetails.subscription === 'string'
@@ -152,8 +159,27 @@ export function createStripeAdapter(
         }
 
         default:
-          return { type: 'unknown', rawType: event.type };
+          return { ...base, type: 'unknown', rawType: event.type };
       }
+    },
+
+    async retrieveSubscription(
+      subscriptionId: string,
+    ): Promise<SubscriptionSnapshot> {
+      const sub = await client.subscriptions.retrieve(subscriptionId);
+      const item = sub.items.data[0];
+      return {
+        subscriptionId: sub.id,
+        customerId:
+          typeof sub.customer === 'string'
+            ? sub.customer
+            : (sub.customer?.id ?? ''),
+        status: sub.status,
+        currentPeriodStart: item?.current_period_start ?? 0,
+        currentPeriodEnd: item?.current_period_end ?? 0,
+        priceId: item?.price?.id ?? '',
+        cancelAtPeriodEnd: sub.cancel_at_period_end,
+      };
     },
   };
 }

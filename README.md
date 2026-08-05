@@ -50,7 +50,13 @@ if (event.type === 'customer.subscription.updated') {
 | `createPortalSession(options)`          | Create a Stripe Billing Portal session            |
 | `createCustomer(email, metadata?)`      | Create a Stripe customer                          |
 | `cancelSubscription(subscriptionId)`    | Cancel a subscription                             |
+| `listInvoices(customerId)`              | List paid invoices for a customer                 |
 | `parseWebhookEvent(payload, signature)` | Parse and verify a webhook event                  |
+| `retrieveSubscription(subscriptionId)`  | Fetch canonical subscription state from Stripe    |
+
+Use `retrieveSubscription` on `checkout.session.completed` to get the real
+period boundaries. Fabricating them locally (`now + 30 days`) drifts from
+Stripe the moment a period is prorated, a payment retries, or a plan changes.
 
 ### Webhook Events
 
@@ -61,6 +67,34 @@ if (event.type === 'customer.subscription.updated') {
 | `customer.subscription.deleted` | `subscriptionId`                                                                                     |
 | `invoice.payment_failed`        | `subscriptionId`, `customerId`                                                                       |
 | `unknown`                       | `rawType`                                                                                            |
+
+Every parsed event also carries `id` (the Stripe `evt_...` id) and
+`createdAt` (unix seconds).
+
+### Webhook Idempotency
+
+Stripe delivers at least once — it retries on any non-2xx response and on
+timeouts. Without dedupe, one event can run your handler several times and
+corrupt state. Pass `idempotency` hooks to skip events already seen:
+
+```typescript
+const handler = createWebhookHandler({
+  adapter,
+  idempotency: {
+    isEventProcessed: (id) => db.webhookEvents.exists(id),
+    markEventProcessed: (id) => db.webhookEvents.insert(id),
+  },
+  onCheckoutCompleted: async (event) => {
+    /* ... */
+  },
+});
+```
+
+Back it with a durable store keyed by event id with a unique constraint —
+it has to survive restarts and work across instances. Both hooks are
+required; supplying only one disables dedupe. If the dedupe store throws,
+the event is processed anyway: processing twice beats dropping a billing
+event.
 
 ## Design
 

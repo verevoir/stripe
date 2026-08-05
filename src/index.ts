@@ -8,7 +8,10 @@ export type {
   PortalSession,
   Invoice,
   WebhookEvent,
+  WebhookEventBase,
   WebhookHandlerOptions,
+  WebhookIdempotency,
+  SubscriptionSnapshot,
   StripeAdapter,
 } from './types.js';
 

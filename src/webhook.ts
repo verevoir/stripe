@@ -39,6 +39,27 @@ export function createWebhookHandler(
       });
     }
 
+    // If the consumer wired idempotency hooks, check before dispatching.
+    // Both hooks are required for dedupe to apply — a half-wired pair
+    // silently does nothing.
+    const idempotency = options.idempotency;
+    if (idempotency) {
+      try {
+        if (await idempotency.isEventProcessed(event.id)) {
+          return new Response(
+            JSON.stringify({ received: true, deduplicated: true }),
+            {
+              status: 200,
+              headers: { 'Content-Type': 'application/json' },
+            },
+          );
+        }
+      } catch {
+        // If the dedupe store is down, fall through and process the
+        // event. Better to process twice than to drop a billing event.
+      }
+    }
+
     switch (event.type) {
       case 'checkout.session.completed':
         await options.onCheckoutCompleted?.(event);
@@ -52,6 +73,14 @@ export function createWebhookHandler(
       case 'invoice.payment_failed':
         await options.onPaymentFailed?.(event);
         break;
+    }
+
+    if (idempotency) {
+      try {
+        await idempotency.markEventProcessed(event.id);
+      } catch {
+        // Failing to mark is recoverable — worst case we process again.
+      }
     }
 
     return new Response(JSON.stringify({ received: true }), {
